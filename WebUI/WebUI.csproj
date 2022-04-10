@@ -6,6 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Blazored.FluentValidation" Version="2.0.3" />
+		<PackageReference Include="Radzen.Blazor" Version="3.18.0" />
+	</ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />

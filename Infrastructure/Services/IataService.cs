@@ -23,7 +23,7 @@ public class IataService : IIataService
 
     public List<IataModel> Iatas { get; set; } = null!;
 
-    public List<IataModel> GetIatas ()
+    public IEnumerable<IataModel> GetIatas ()
     {
         return Iatas;
     }

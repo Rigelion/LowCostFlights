@@ -9,6 +9,6 @@ namespace Infrastructure.Interfaces
 {
     public interface IIataService
     {
-        List<IataModel> GetIatas();
+        IEnumerable<IataModel> GetIatas();
     }
 }

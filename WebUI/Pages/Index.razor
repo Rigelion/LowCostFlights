@@ -1,12 +1,78 @@
-﻿@using Infrastructure.Interfaces
-@inject IIataService iataService
-
+﻿@inject IIataService _iataService
 @page "/"
 
-<PageTitle>Index</PageTitle>
+<RadzenCard class="d-flex">
+    <div class="row mb-2">
+        <div class="col-6">
+            <h5 class="mb-2">Origin Airport</h5>
+            <RadzenDropDownDataGrid class="col-12"
+                                    Data="@_iataService.GetIatas()"
+                                    TextProperty="@nameof(IataModel.Iata)"
+                                    AllowFiltering="true"
+                                    AllowSorting="true"
+                                    AllowClear="true"
+                                    AllowFilteringByAllStringColumns="true"
+                                    @bind-Value="originModel">
 
-<h1>Hello, world!</h1>
+                <Columns>
+                    <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Iata)" Title="Iata" Width="100px" />
+                    <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Name)" Title="Name" Width="200px" />
+                    <RadzenDropDownDataGridColumn Property="@nameof(IataModel.City)" Title="City" Width="100px" />
+                    <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Country)" Title="Country" Width="100px" />
+                </Columns>
+            </RadzenDropDownDataGrid>
+        </div>
+        <div class="col-6">
+            <h5 class="mb-2">Destination Airport</h5>
+            <RadzenDropDownDataGrid class="col-12"
+                                    Data="@_iataService.GetIatas()"
+                                    TextProperty="@nameof(IataModel.Iata)"
+                                    AllowFiltering="true"
+                                    AllowSorting="true"
+                                    AllowClear="true"
+                                    AllowFilteringByAllStringColumns="true"
+                                    @bind-Value="originModel">
 
-Welcome to your new app.
+                <Columns>
+                    <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Iata)" Title="Iata" Width="100px" />
+                    <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Name)" Title="Name" Width="200px" />
+                    <RadzenDropDownDataGridColumn Property="@nameof(IataModel.City)" Title="City" Width="100px" />
+                    <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Country)" Title="Country" Width="100px" />
+                </Columns>
+            </RadzenDropDownDataGrid>
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-6">
+            <h5 class="mb-2">Flight Date</h5>
+            <RadzenDatePicker @bind-Value=@value DateFormat="d" Class="w-100" />
+        </div>
+        <div class="col-6">
+            <h5 class="mb-2">Return Date</h5>
+            <RadzenDatePicker @bind-Value=@value DateFormat="d" Class="w-100" />
+        </div>
+    </div>
+    <div>
+        <h4 class="mb-2">Number Of Passengers</h4>
+        <RadzenNumeric Min="0" TValue="uint" @bind-Value="numberOfPassengers" Class="w-100" />
+    </div>
+</RadzenCard>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<RadzenButton Click="(()=> Test())">Test</RadzenButton>
+
+<PageTitle>Low Cost Flights</PageTitle>
+
+
+
+@code {
+    string originIata;
+    IataModel originModel;
+
+    DateTime value;
+    uint numberOfPassengers;
+
+    void Test()
+    {
+
+    }
+}
