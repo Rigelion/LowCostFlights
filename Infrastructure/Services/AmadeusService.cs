@@ -1,4 +1,5 @@
-﻿using Infrastructure.Utilities;
+﻿using Infrastructure.Interfaces;
+using Infrastructure.Utilities;
 using Microsoft.Extensions.Logging;
 using Models;
 using Models.Amadeus;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Services;
 
-public class AmadeusService
+public class AmadeusService : IAmadeusService
 {
     private readonly RestClient _restClient;
     private readonly AmadeusConfiguration _amadeusConfiguration;
@@ -29,12 +30,16 @@ public class AmadeusService
         _restClient = new(_amadeusConfiguration.BaseUrl);
     }
 
-    public async Task<FlightOfferResponse?> GetFlightOffers(IataModel originIata, IataModel destinationIata, DateTime departureDate, int numberOfPassengers, DateTime? returnDate = null)
+    public async Task<FlightOfferResponse?> GetFlightOffers(IataModel originIata, IataModel destinationIata, DateTime departureDate, uint numberOfPassengers, DateTime? returnDate = null)
     {
         var request = new RestRequest(@"/v2/shopping/flight-offers", Method.Get);
         var policy = SetRetryPolicy();
 
-        request.AddCheapFlightParameters(originIata, destinationIata, departureDate, numberOfPassengers, returnDate);
+        _ = DateTime.TryParse("2022-11-01", out var date);
+
+        request.AddCheapFlightParameters(new() { Iata = "SYD" }, new() { Iata = "BKK" }, date, 1);
+
+        //request.AddCheapFlightParameters(originIata, destinationIata, departureDate, numberOfPassengers, returnDate);
 
         var response = await policy.ExecuteAsync(context =>
         {

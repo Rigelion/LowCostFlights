@@ -1,19 +1,24 @@
+using FluentValidation;
 using Infrastructure.Interfaces;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Models.Amadeus;
 using WebUI.Data;
+using WebUI.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 
 builder.Services.AddSingleton<IIataService, IataService>();
 builder.Services.AddSingleton<AmadeusConfiguration>((serviceProvider) => builder.Configuration.GetSection(nameof(AmadeusConfiguration)).Get<AmadeusConfiguration>());
+builder.Services.AddScoped<FlightOfferViewModel>();
+builder.Services.AddScoped<IAmadeusService, AmadeusService>();
+builder.Services.AddTransient<IValidator<FlightOfferViewModel>, FlightRequestViewModelValidator>();
+
 
 var app = builder.Build();
 

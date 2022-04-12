@@ -10,7 +10,7 @@ namespace Infrastructure.Utilities;
 
 internal static class ExtensionMethods
 {
-    internal static  RestRequest AddCheapFlightParameters(this RestRequest request, IataModel origin, IataModel destination, DateTime departureDate, int numberOfPassengers, DateTime? returnDate = null)
+    internal static  RestRequest AddCheapFlightParameters(this RestRequest request, IataModel origin, IataModel destination, DateTime departureDate, uint numberOfPassengers, DateTime? returnDate = null)
     {
         request.AddParameter("originLocationCode", origin.Iata);
         request.AddParameter("destinationLocationCode", destination.Iata);
