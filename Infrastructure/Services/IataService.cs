@@ -13,7 +13,7 @@ public class IataService : IIataService
 {
     public IataService()
     {
-        string folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule!.FileName) + @"\Data\";
+        string folder = Path.GetDirectoryName(Environment.ProcessPath) + @"\Data\";
         var airportsJsonPath = Directory.GetFiles(folder, "airports.json").First();
 
         using StreamReader sr = new StreamReader(airportsJsonPath);
@@ -23,9 +23,8 @@ public class IataService : IIataService
 
     public List<IataModel> Iatas { get; set; } = null!;
 
-    public IEnumerable<IataModel> GetIatas ()
-    {
-        return Iatas;
-    }
+    public IataModel? GetIata(string iataCode) => Iatas.FirstOrDefault(x => x.Iata == iataCode);
+
+    public IEnumerable<IataModel> GetIatas() => Iatas;
 }
 

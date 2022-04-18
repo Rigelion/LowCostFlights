@@ -10,5 +10,7 @@ namespace Infrastructure.Interfaces
     public interface IIataService
     {
         IEnumerable<IataModel> GetIatas();
+
+        IataModel? GetIata(string iataCode);
     }
 }
