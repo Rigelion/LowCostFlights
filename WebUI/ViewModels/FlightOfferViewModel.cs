@@ -1,21 +1,21 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using Infrastructure.Interfaces;
 using Models;
 using Models.Amadeus;
+using Models.CurrencyConverter;
+using WebUI.DTOs;
 
 namespace WebUI.ViewModels;
 
 public class FlightOfferViewModel
 {
     readonly IAmadeusService _amadeusService;
-    public FlightOfferViewModel(IAmadeusService amadeusService)
+    readonly IMapper _mapper;
+    public FlightOfferViewModel(IAmadeusService amadeusService, IMapper mapper)
     {
         _amadeusService = amadeusService;
-    }
-
-    public async Task GetFlightOfferResponses()
-    {
-        Response = await _amadeusService.GetFlightOffers(Origin, Destination, DepartureDate, NumberOfPassengers, ReturnDate);
+        _mapper = mapper;
     }
 
     public IataModel Origin { get; set; } = null!;
@@ -24,8 +24,19 @@ public class FlightOfferViewModel
     public DateTime? ReturnDate { get; set; } = null!;
     public uint NumberOfPassengers { get; set; } = 1;
 
+    public CurrencyTypeViewModel CurrencyType { get; set; } = GetCurrencyTypeViewModels().First();
 
-    public FlightOfferResponse? Response { get; set; }
+
+    public FlightOfferResponseDto? Response { get; set; }
+
+    public async Task GetFlightOfferResponses()
+    {
+        var resp = await _amadeusService.GetFlightOffers(new(Origin.Iata, Destination.Iata, DepartureDate, NumberOfPassengers, ReturnDate));
+        Response = _mapper.Map<FlightOfferResponseDto>(resp);       
+    }
+
+    public static IEnumerable<CurrencyTypeViewModel> GetCurrencyTypeViewModels() => Enum.GetValues<CurrencyType>().ToList().Select<CurrencyType, CurrencyTypeViewModel>(x => new(x));
+
 }
 
 public class FlightRequestViewModelValidator : AbstractValidator<FlightOfferViewModel>
@@ -45,15 +56,24 @@ public class FlightRequestViewModelValidator : AbstractValidator<FlightOfferView
 
         RuleFor(x => x.NumberOfPassengers).GreaterThan((uint)0);
     }
+}
 
-    //private bool IsDepartureDateValid(FlightOfferViewModel viewModel, DateTime departureDate)
-    //{
-    //    if (viewModel.ReturnDate != null && viewModel.ReturnDate < departureDate)
-    //    {
-    //        return false;
-    //    }
+public class CurrencyTypeViewModel
+{
+    public CurrencyTypeViewModel(CurrencyType currency)
+    {
+        CurrencyValue = currency;
+        CurrencyName = currency.ToString();
+    }
 
-    //    return true;
-    //}
+    public CurrencyType CurrencyValue { get; set; }
+    public string CurrencyName { get; set; } = null!;
+}
+
+public enum CurrencyType
+{
+    EUR,
+    HRK,
+    USD
 }
 

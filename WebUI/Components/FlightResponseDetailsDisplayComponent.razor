@@ -1,0 +1,21 @@
+﻿@if (FlightOfferData != null)
+{
+    <div>
+        @foreach (var itinerary in FlightOfferData.Itineraries)
+        {
+            <h3>Segments</h3>
+
+            <h4>Duration: @itinerary.Duration.Humanize(2, minUnit:Humanizer.Localisation.TimeUnit.Minute, maxUnit:Humanizer.Localisation.TimeUnit.Hour)</h4>
+            @foreach (var segment in itinerary.Segments)
+            {
+                <ul>
+                    <FlightResponseSegmentDisplayComponent Segment=segment />
+                </ul>
+            }
+        }
+    </div>
+}
+@code {
+    [Parameter]
+    public FlightOfferDataDto FlightOfferData { get; set; } = null!;
+}

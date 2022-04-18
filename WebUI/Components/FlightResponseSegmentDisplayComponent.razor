@@ -1,0 +1,9 @@
+﻿ @if (Segment != null)
+{
+    <li>@Segment.Departure.City (@Segment.Departure.Iata) to @Segment.Arrival.City (@Segment.Arrival.Iata)   <h5>@Segment.Duration.Humanize(2,maxUnit:Humanizer.Localisation.TimeUnit.Hour, minUnit:Humanizer.Localisation.TimeUnit.Minute)</h5> <h5>Number of Stops: @Segment.NumberOfStops</h5></li>
+}
+
+@code {
+    [Parameter]
+    public SegmentDto Segment { get; set; } = null!;
+}
