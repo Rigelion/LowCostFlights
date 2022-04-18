@@ -10,7 +10,7 @@ namespace Models.Amadeus;
 public class FlightOfferResponse
 {
     [JsonProperty("data")]
-    public IEnumerable<FlightOfferData> Data { get; set; } = null!;
+    public IEnumerable<FlightOfferData> ReturnedFlights { get; set; } = null!;
     [JsonProperty("dictionaries")]
     public Dictionaries Dictionaries { get; set; } = null!;
 }
@@ -64,8 +64,6 @@ public class FlightEndPoint
 {
     [JsonProperty("iataCode")]
     public string IataCode { get; set; } = null!;
-    //[JsonProperty("terminal")]
-    //public string Terminal { get; set; } = null!;
 }
 public class Dictionaries
 {

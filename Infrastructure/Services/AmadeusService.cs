@@ -20,46 +20,50 @@ public class AmadeusService : IAmadeusService
     private readonly RestClient _restClient;
     private readonly AmadeusConfiguration _amadeusConfiguration;
     private readonly ILogger<AmadeusService> _logger;
+    private readonly ICacheService _cacheService;
 
     private string _accessToken = null!;
 
-    public AmadeusService(AmadeusConfiguration amadeusConfiguration, ILogger<AmadeusService> logger)
+    public AmadeusService(AmadeusConfiguration amadeusConfiguration, ILogger<AmadeusService> logger, ICacheService cacheService)
     {
         _amadeusConfiguration = amadeusConfiguration;
         _logger = logger;
         _restClient = new(_amadeusConfiguration.BaseUrl);
+        _cacheService = cacheService;
     }
 
-    public async Task<FlightOfferResponse?> GetFlightOffers(IataModel originIata, IataModel destinationIata, DateTime departureDate, uint numberOfPassengers, DateTime? returnDate = null)
+    public async Task<FlightOfferResponse?> GetFlightOffers(FlightOfferRequest request)
     {
-        var request = new RestRequest(@"/v2/shopping/flight-offers", Method.Get);
-        var policy = SetRetryPolicy();
-
-        _ = DateTime.TryParse("2022-11-01", out var date);
-
-        request.AddCheapFlightParameters(new() { Iata = "SYD" }, new() { Iata = "BKK" }, date, 1);
-
-        //request.AddCheapFlightParameters(originIata, destinationIata, departureDate, numberOfPassengers, returnDate);
-
-        var response = await policy.ExecuteAsync(context =>
-        {
-            request.AddHeader("Authorization", $"Bearer {_accessToken}");
-            return _restClient.ExecuteAsync(request);
-        }, CancellationToken.None);
-
-        return JsonConvert.DeserializeObject<FlightOfferResponse>(response.Content!)!;
+        return await _cacheService.GetFromCacheAndCache(GetCacheKey(request), () => FlightOffersRequest(request));
     }
 
-    private AsyncRetryPolicy<RestResponse> SetRetryPolicy()
+    private async Task<FlightOfferResponse?> FlightOffersRequest(FlightOfferRequest flightOfferRequest)
     {
-        var policy = Policy.HandleResult<RestResponse>(x => x.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        var restRequest = new RestRequest(@"/v2/shopping/flight-offers", Method.Get);
+
+        var unauthorizedPolicy = Policy
+            .HandleResult<RestResponse>(x => x.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             .RetryAsync(1, async (result, retryCount, context) =>
             {
                 await GetNewAccessToken();
-            }
+            });
 
-            );
-        return policy;
+        var policy = Policy
+            .HandleResult<RestResponse>(x => x.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+            .RetryAsync(5);
+
+        _ = DateTime.TryParse("2022-11-01", out var date);
+
+        restRequest.AddCheapFlightParameters(flightOfferRequest.OriginIata, flightOfferRequest.DestinationIata, flightOfferRequest.DepartureDate, flightOfferRequest.NumberOfPassengers, flightOfferRequest.ReturnDate);
+
+        var response = await unauthorizedPolicy.WrapAsync(policy).ExecuteAsync(context =>
+        {
+            restRequest.AddHeader("Authorization", $"Bearer {_accessToken}");
+
+            return _restClient.ExecuteAsync(restRequest);
+        }, CancellationToken.None);
+
+        return JsonConvert.DeserializeObject<FlightOfferResponse>(response.Content!)!;
     }
 
     private async Task GetNewAccessToken()
@@ -74,6 +78,12 @@ public class AmadeusService : IAmadeusService
 
         var x = JsonConvert.DeserializeObject<AmadeusAuthorizationResponse>(t.Content!);
         _accessToken = x!.AccessToken;
+    }
+
+
+    private string GetCacheKey(FlightOfferRequest request)
+    {
+        return $"{request.OriginIata}-{request.DestinationIata}-{request.DepartureDate}-{request.NumberOfPassengers}-{request.ReturnDate}";
     }
 }
 

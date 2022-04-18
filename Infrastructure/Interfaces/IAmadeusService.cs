@@ -10,6 +10,6 @@ namespace Infrastructure.Interfaces
 {
     public interface IAmadeusService
     {
-        public Task<FlightOfferResponse?> GetFlightOffers(IataModel originIata, IataModel destinationIata, DateTime departureDate, uint numberOfPassengers, DateTime? returnDate = null);
+        public Task<FlightOfferResponse?> GetFlightOffers(FlightOfferRequest request);
     }
 }
