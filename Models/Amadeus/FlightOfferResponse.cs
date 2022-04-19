@@ -28,6 +28,8 @@ public class FlightOfferData
     public IEnumerable<Itinerary> Itineraries { get; set; } = null!;
     [JsonProperty("price")]
     public FlightOfferPrice Price { get; set; } = null!;
+    [JsonProperty("lastTicketingDate")]
+    public string LastTicketingDate { get; set; } = null!;
 
 }
 

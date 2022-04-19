@@ -14,9 +14,11 @@ public class DictionariesDto
 
 public class FlightOfferDataDto
 {
+
     public int NumberOfBookableSeats { get; set; }
     public IEnumerable<ItineraryDto> Itineraries { get; set; } = null!;
     public TimeSpan TotalDuration => Itineraries.Aggregate(TimeSpan.Zero, (subtotal, t) => subtotal.Add(t.Duration));
+    public string LastTicketingDate { get; set; } = null!;
     public FlightOfferPriceDto Price { get; set; } = null!;
 }
 

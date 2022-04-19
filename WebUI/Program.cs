@@ -6,15 +6,26 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Models.Amadeus;
 using Models.CurrencyConverter;
+using Serilog;
 using WebUI.Data;
 using WebUI.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add Serilog
+builder.Host.UseSerilog((ctx, lc) => lc
+        .WriteTo.Console()
+        .ReadFrom.Configuration(ctx.Configuration));
+
 // Get currency rates
 var currencyService = new CurrencyConverterService(builder.Configuration.GetSection(nameof(CurrencyConverterConfiguration)).Get<CurrencyConverterConfiguration>());
+CurrencyRates? currencyRates = await currencyService.GetCurrencyRates();
 
-var currencyRates = await currencyService.GetCurrencyRates();
+if (currencyRates == null)
+{
+    currencyRates = builder.Configuration.GetSection(nameof(CurrencyRates)).Get<CurrencyRates>();
+}
+
 
 builder.Services.AddSingleton(currencyRates);
 
@@ -23,7 +34,6 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
 builder.Services.AddSingleton<AmadeusConfiguration>((serviceProvider) => builder.Configuration.GetSection(nameof(AmadeusConfiguration)).Get<AmadeusConfiguration>());
-//builder.Services.AddSingleton<CurrencyConverterConfiguration>((serviceProvider) => builder.Configuration.GetSection(nameof(CurrencyConverterConfiguration)).Get<CurrencyConverterConfiguration>());
 
 builder.Services.AddSingleton<IIataService, IataService>();
 

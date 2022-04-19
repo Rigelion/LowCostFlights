@@ -26,24 +26,27 @@ public class AmadeusService : IAmadeusService
 
     public AmadeusService(AmadeusConfiguration amadeusConfiguration, ILogger<AmadeusService> logger, ICacheService cacheService)
     {
+
         _amadeusConfiguration = amadeusConfiguration;
         _logger = logger;
         _restClient = new(_amadeusConfiguration.BaseUrl);
         _cacheService = cacheService;
     }
 
-    public async Task<FlightOfferResponse?> GetFlightOffers(FlightOfferRequest request)
+    public async Task<FlightOfferResponse?> GetFlightOffers(FlightOfferRequest flightOfferRequest)
     {
-        return await _cacheService.GetFromCacheAndCache(GetCacheKey(request), () => FlightOffersRequest(request));
+        return await _cacheService.GetFromCacheAndCache(GetCacheKey(flightOfferRequest), () => FlightOffersRequest(flightOfferRequest));
     }
 
     private async Task<FlightOfferResponse?> FlightOffersRequest(FlightOfferRequest flightOfferRequest)
     {
+        _logger.LogInformation("Starting Request for {@FlightOfferRequest}", flightOfferRequest);
+
         var restRequest = new RestRequest(@"/v2/shopping/flight-offers", Method.Get);
 
         var unauthorizedPolicy = Policy
             .HandleResult<RestResponse>(x => x.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            .RetryAsync(1, async (result, retryCount, context) =>
+            .RetryAsync(1, async (_, _) =>
             {
                 await GetNewAccessToken();
             });
@@ -54,7 +57,11 @@ public class AmadeusService : IAmadeusService
 
         _ = DateTime.TryParse("2022-11-01", out var date);
 
-        restRequest.AddCheapFlightParameters(flightOfferRequest.OriginIata, flightOfferRequest.DestinationIata, flightOfferRequest.DepartureDate, flightOfferRequest.NumberOfPassengers, flightOfferRequest.ReturnDate);
+        restRequest.AddCheapFlightParameters(flightOfferRequest.OriginIata,
+                                             flightOfferRequest.DestinationIata,
+                                             flightOfferRequest.DepartureDate,
+                                             flightOfferRequest.NumberOfPassengers,
+                                             flightOfferRequest.ReturnDate);
 
         var response = await unauthorizedPolicy.WrapAsync(policy).ExecuteAsync(context =>
         {

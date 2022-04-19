@@ -23,14 +23,20 @@ public class CurrencyConverterService
         _restClient = new(_currencyConverterConfiguration.BaseUrl);
     }
 
-    public async Task<CurrencyRates> GetCurrencyRates()
+    public async Task<CurrencyRates?> GetCurrencyRates()
     {
         var request = new RestRequest("convert", Method.Get);
 
         request.AddCurrencyConversionParameters(_currencyConverterConfiguration.ApiKey);
-        var response = await _restClient.ExecuteAsync(request);
 
-         return JsonConvert.DeserializeObject<CurrencyRates>(response.Content!)!;
+        var response = await _restClient.ExecuteAsync(request);
+        
+        if(!response.IsSuccessful)
+        {
+            return null!;
+        }
+
+        return JsonConvert.DeserializeObject<CurrencyRates>(response.Content!)!;
     }
 
 }
