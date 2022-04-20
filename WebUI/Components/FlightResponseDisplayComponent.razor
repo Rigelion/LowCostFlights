@@ -1,0 +1,55 @@
+﻿<RadzenDataGrid Data="@(ReturnedFlights)"
+                TItem="FlightOfferDataDto"
+                AllowPaging="true" PageSize="10"
+                AllowFiltering="true"
+                AllowSorting="true"
+                ExpandMode="DataGridExpandMode.Single" RowRender="@RowRender">
+
+    <Template Context="responseContext">
+        <RadzenCard Style="margin-bottom:20px">
+            <FlightResponseDetailsDisplayComponent FlightOfferData=responseContext />
+        </RadzenCard>
+    </Template>
+    <Columns>
+        <RadzenDataGridColumn Sortable=false TItem="FlightOfferDataDto" Title="Flight">
+            <Template Context="responseContext">
+                <FlightDepartureArrivalDisplay FlightOfferData=responseContext />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="FlightOfferDataDto" Property="NumberOfBookableSeats" Title="Number Of Bookable Seats" />
+        <RadzenDataGridColumn TItem="FlightOfferDataDto" Property="TotalDuration" Title="Total Time Of Flight">
+            <Template Context="responseContext">
+                <h3>@responseContext.TotalDuration.Humanize(2,maxUnit:Humanizer.Localisation.TimeUnit.Hour, minUnit:Humanizer.Localisation.TimeUnit.Minute)</h3>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn SortProperty="Price.TotalEur" TItem="FlightOfferDataDto" Property="Price" Title="Price">
+            <Template Context="responseContext">
+                <h4>@GetPriceByCurrency(responseContext.Price)</h4>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    [Parameter]
+    public IEnumerable<FlightOfferDataDto> ReturnedFlights { get; set; } = null!;
+
+    [Parameter]
+    public CurrencyType CurrencyType { get; set; }
+
+    void RowRender(RowRenderEventArgs<FlightOfferDataDto> args)
+    {
+        args.Expandable = true;
+    }
+
+    string GetPriceByCurrency(FlightOfferPriceDto price) =>
+        CurrencyType switch
+        {
+            CurrencyType.EUR => $"{price.TotalEur.ToString("#,##0.00")} €",
+            CurrencyType.HRK => $"{price.TotalHrk.ToString("#,##0.00")} Kn",
+            CurrencyType.USD => $"{price.TotalUsd.ToString("#,##0.00")} $",
+
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+}

@@ -1,0 +1,133 @@
+﻿@inject IIataService _iataService
+@inject FlightOfferViewModel _viewModel
+@page "/"
+
+
+<PageTitle>Low Cost Flights</PageTitle>
+
+<EditForm EditContext="editContext" OnValidSubmit="LoadFlightOfferResponse">
+    <Blazored.FluentValidation.FluentValidationValidator DisableAssemblyScanning="true"></Blazored.FluentValidation.FluentValidationValidator>
+    <RadzenCard class="d-flex">
+
+        <div class="row mb-2">
+            <div class="col-6">
+                <h5 class="mb-2">Origin Airport</h5>
+                <RadzenDropDownDataGrid class="col-12"
+                                        Data="@_iataService.GetIatas()"
+                                        TextProperty="@nameof(IataModel.Iata)"
+                                        AllowFiltering="true"
+                                        AllowSorting="true"
+                                        AllowClear="true"
+                                        AllowFilteringByAllStringColumns="true"
+                                        @bind-Value="_viewModel.Origin">
+
+                    <Columns>
+                        <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Iata)" Title="Iata" Width="100px" />
+                        <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Name)" Title="Name" Width="200px" />
+                        <RadzenDropDownDataGridColumn Property="@nameof(IataModel.City)" Title="City" Width="100px" />
+                        <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Country)" Title="Country" Width="100px" />
+                    </Columns>
+                </RadzenDropDownDataGrid>
+                <ValidationMessage For="@(() => _viewModel.Origin)" />
+            </div>
+            <div class="col-6">
+                <h5 class="mb-2">Destination Airport</h5>
+                <RadzenDropDownDataGrid class="col-12"
+                                        Data="@_iataService.GetIatas()"
+                                        TextProperty="@nameof(IataModel.Iata)"
+                                        AllowFiltering="true"
+                                        AllowSorting="true"
+                                        AllowClear="true"
+                                        AllowFilteringByAllStringColumns="true"
+                                        @bind-Value="_viewModel.Destination">
+
+                    <Columns>
+                        <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Iata)" Title="Iata" Width="100px" />
+                        <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Name)" Title="Name" Width="200px" />
+                        <RadzenDropDownDataGridColumn Property="@nameof(IataModel.City)" Title="City" Width="100px" />
+                        <RadzenDropDownDataGridColumn Property="@nameof(IataModel.Country)" Title="Country" Width="100px" />
+                    </Columns>
+                </RadzenDropDownDataGrid>
+                <ValidationMessage For="@(() => _viewModel.Destination)" />
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-6">
+                <h5 class="mb-2">Flight Date</h5>
+                <RadzenDatePicker AllowClear="true" @bind-Value="_viewModel.DepartureDate" DateFormat="d" Class="w-100" />
+                <ValidationMessage For="@(() => _viewModel.DepartureDate)" />
+            </div>
+            <div class="col-6">
+                <h5 class="mb-2">Return Date</h5>
+                <RadzenDatePicker AllowClear="true" @bind-Value="_viewModel.ReturnDate" DateFormat="d" Class="w-100" />
+                <ValidationMessage For="@(() => _viewModel.ReturnDate)" />
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-6">
+                <h4 class="mb-2">Number Of Passengers</h4>
+                <RadzenNumeric Min="1" Max="9" TValue="uint" @bind-Value="_viewModel.NumberOfPassengers" Class="w-100" />
+                <ValidationMessage For="@(() => _viewModel.NumberOfPassengers)" />
+            </div>
+            <div class="col-6">
+                <h4 class="mb-2">Currency</h4>
+                <RadzenDropDown AllowClear="true" TValue="CurrencyTypeViewModel" Class="w-100"
+                                TextProperty=@nameof(CurrencyTypeViewModel.CurrencyName)
+                                Data=@FlightOfferViewModel.GetCurrencyTypeViewModels()
+                                @bind-Value=_viewModel.CurrencyType />
+            </div>
+        </div>
+        <ValidationSummary />
+
+        <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+            <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Get Flight Offers" />
+        </div>
+    </RadzenCard>
+</EditForm>
+
+@if (isLoading)
+{
+    <RadzenCard>
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    </RadzenCard>
+}
+else if (_viewModel.Response != null)
+{
+    <CascadingValue TValue=DictionariesDto Value=_viewModel.Response.Dictionaries Name="Dictionaries">
+        <FlightResponseDisplayComponent ReturnedFlights=@_viewModel.Response.ReturnedFlights CurrencyType=@_viewModel.CurrencyType.CurrencyValue />
+    </CascadingValue>
+}
+
+
+
+
+@code {
+    bool isLoading;
+    EditContext editContext = null!;
+
+    protected override void OnInitialized()
+    {
+        editContext = new(_viewModel);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            editContext.Validate();
+        }
+    }
+
+    void RowRender(RowRenderEventArgs<FlightOfferDataDto> args)
+    {
+        args.Expandable = true;
+    }
+
+    async Task LoadFlightOfferResponse()
+    {
+        isLoading = true;
+        await InvokeAsync(StateHasChanged);
+        await _viewModel.GetFlightOfferResponses();
+        isLoading = false;
+    }
+}
