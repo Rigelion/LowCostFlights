@@ -7,7 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Models.Amadeus;
 using Models.CurrencyConverter;
 using Serilog;
-using WebUI.Data;
+using WebUI;
+using WebUI.Utility;
 using WebUI.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,31 +19,13 @@ builder.Host.UseSerilog((ctx, lc) => lc
         .ReadFrom.Configuration(ctx.Configuration));
 
 // Get currency rates
-var currencyService = new CurrencyConverterService(builder.Configuration.GetSection(nameof(CurrencyConverterConfiguration)).Get<CurrencyConverterConfiguration>());
-CurrencyRates? currencyRates = await currencyService.GetCurrencyRates();
-
-if (currencyRates == null)
-{
-    currencyRates = builder.Configuration.GetSection(nameof(CurrencyRates)).Get<CurrencyRates>();
-}
-
-
-builder.Services.AddSingleton(currencyRates);
+var currencyRates = await builder.GetCurrencyRatesAsync();
 
 // Add services to the container.
+builder.AddServices(currencyRates);
+
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-
-builder.Services.AddSingleton<AmadeusConfiguration>((serviceProvider) => builder.Configuration.GetSection(nameof(AmadeusConfiguration)).Get<AmadeusConfiguration>());
-
-builder.Services.AddSingleton<IIataService, IataService>();
-
-builder.Services.AddScoped<FlightOfferViewModel>();
-builder.Services.AddScoped<IAmadeusService, AmadeusService>();
-builder.Services.AddScoped<ICacheService, CacheService>();
-
-builder.Services.AddTransient<IValidator<FlightOfferViewModel>, FlightRequestViewModelValidator>();
-
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
