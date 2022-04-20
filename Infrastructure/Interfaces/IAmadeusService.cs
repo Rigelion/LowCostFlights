@@ -6,10 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Interfaces
+namespace Infrastructure.Interfaces;
+
+public interface IAmadeusService
 {
-    public interface IAmadeusService
-    {
-        public Task<FlightOfferResponse?> GetFlightOffers(FlightOfferRequest request);
-    }
+    public Task<FlightOfferResponse?> GetFlightOffers(FlightOfferRequest request);
 }
+

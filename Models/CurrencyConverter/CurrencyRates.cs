@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Models.CurrencyConverter
+namespace Models.CurrencyConverter;
+
+public class CurrencyRates
 {
-    public class CurrencyRates
-    {
-        [JsonProperty("EUR_HRK")]
-        public decimal EurToHrkRate { get; set; }
-        [JsonProperty("EUR_USD")]
-        public decimal EurToUsdRate { get; set; }
-    }
+    [JsonProperty("EUR_HRK")]
+    public decimal EurToHrkRate { get; set; }
+    [JsonProperty("EUR_USD")]
+    public decimal EurToUsdRate { get; set; }
 }
+
