@@ -10,13 +10,10 @@
             <FlightResponseDetailsDisplayComponent FlightOfferData=responseContext />
         </RadzenCard>
     </Template>
-
     <Columns>
-        <RadzenDataGridColumn TItem="FlightOfferDataDto" Property="Type" Title="Flight">
+        <RadzenDataGridColumn Sortable=false TItem="FlightOfferDataDto" Title="Flight">
             <Template Context="responseContext">
-                @{
-                    <h4>@responseContext.Itineraries.First().Segments.First().Departure.City - @responseContext.Itineraries.Last().Segments.Last().Arrival.City</h4>
-                }
+                <FlightDepartureArrivalDisplay FlightOfferData=responseContext />
             </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="FlightOfferDataDto" Property="NumberOfBookableSeats" Title="Number Of Bookable Seats" />
@@ -39,11 +36,6 @@
 
     [Parameter]
     public CurrencyType CurrencyType { get; set; }
-
-    protected override void OnParametersSet()
-    {
-        //StateHasChanged();
-    }
 
     void RowRender(RowRenderEventArgs<FlightOfferDataDto> args)
     {

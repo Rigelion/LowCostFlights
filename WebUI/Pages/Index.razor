@@ -72,7 +72,7 @@
             <div class="col-6">
                 <h4 class="mb-2">Currency</h4>
                 <RadzenDropDown AllowClear="true" TValue="CurrencyTypeViewModel" Class="w-100"
-                TextProperty=@nameof(CurrencyTypeViewModel.CurrencyName)                
+                                TextProperty=@nameof(CurrencyTypeViewModel.CurrencyName)
                                 Data=@FlightOfferViewModel.GetCurrencyTypeViewModels()
                                 @bind-Value=_viewModel.CurrencyType />
             </div>
@@ -93,7 +93,9 @@
 }
 else if (_viewModel.Response != null)
 {
-    <FlightResponseDisplayComponent ReturnedFlights=@_viewModel.Response.ReturnedFlights CurrencyType=@_viewModel.CurrencyType.CurrencyValue />
+    <CascadingValue TValue=DictionariesDto Value=_viewModel.Response.Dictionaries Name="Dictionaries">
+        <FlightResponseDisplayComponent ReturnedFlights=@_viewModel.Response.ReturnedFlights CurrencyType=@_viewModel.CurrencyType.CurrencyValue />
+    </CascadingValue>
 }
 
 

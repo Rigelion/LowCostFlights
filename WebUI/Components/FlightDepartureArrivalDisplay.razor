@@ -1,0 +1,17 @@
+﻿@if (FlightOfferData != null)
+{
+    if (FlightOfferData.Itineraries.Count() == 1)
+    {
+        <h4>@FlightOfferData.Itineraries.First().Segments.First().Departure.City - @FlightOfferData.Itineraries.First().Segments.Last().Arrival.City</h4>
+    }
+    else
+    {
+        <h4>@FlightOfferData.Itineraries.First().Segments.First().Departure.City - @FlightOfferData.Itineraries.First().Segments.Last().Arrival.City</h4>
+        <h4>@FlightOfferData.Itineraries.Last().Segments.First().Departure.City - @FlightOfferData.Itineraries.Last().Segments.Last().Arrival.City</h4>
+    }
+}
+
+@code {
+    [Parameter]
+    public FlightOfferDataDto FlightOfferData { get; set; } = null!;
+}
