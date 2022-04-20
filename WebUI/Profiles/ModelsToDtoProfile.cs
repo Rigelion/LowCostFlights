@@ -24,7 +24,8 @@ public class ModelsToDtoProfile : Profile
             .ForMember(dst => dst.NumberOfStops, opt => opt.MapFrom(src => src.NumberOfStops))
             .ForMember(dst => dst.Duration, opt => opt.MapFrom<DurationResolver>())
             .ForMember(dst => dst.Arrival, opt => opt.MapFrom<IataModelResolver, FlightEndPoint>(x => x.Arrival))
-            .ForMember(dst => dst.Departure, opt => opt.MapFrom<IataModelResolver, FlightEndPoint>(x => x.Departure));
+            .ForMember(dst => dst.Departure, opt => opt.MapFrom<IataModelResolver, FlightEndPoint>(x => x.Departure))
+            .ForMember(dst=> dst.AircraftCode, opt=> opt.MapFrom(src=> src.Aircraft.AircraftCode));
 
         CreateMap<FlightOfferPrice, FlightOfferPriceDto>()
             .ForMember(dst => dst.TotalHrk, opt => opt.MapFrom<EurToHrkResolver>())

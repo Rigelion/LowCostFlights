@@ -14,11 +14,10 @@ public class DictionariesDto
 
 public class FlightOfferDataDto
 {
-
+    public bool OneWay { get; set; }
     public int NumberOfBookableSeats { get; set; }
     public IEnumerable<ItineraryDto> Itineraries { get; set; } = null!;
     public TimeSpan TotalDuration => Itineraries.Aggregate(TimeSpan.Zero, (subtotal, t) => subtotal.Add(t.Duration));
-    public string LastTicketingDate { get; set; } = null!;
     public FlightOfferPriceDto Price { get; set; } = null!;
 }
 
@@ -43,5 +42,6 @@ public class SegmentDto
     public IataModelDto Departure { get; set; } = null!;
     public IataModelDto Arrival { get; set; } = null!;
 
-    public string Carrier { get; set; } = null!;
+    public string CarrierCode { get; set; } = null!;
+    public string AircraftCode { get; set; } = null!;
 }

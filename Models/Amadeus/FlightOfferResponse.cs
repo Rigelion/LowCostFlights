@@ -28,8 +28,6 @@ public class FlightOfferData
     public IEnumerable<Itinerary> Itineraries { get; set; } = null!;
     [JsonProperty("price")]
     public FlightOfferPrice Price { get; set; } = null!;
-    [JsonProperty("lastTicketingDate")]
-    public string LastTicketingDate { get; set; } = null!;
 
 }
 
@@ -54,12 +52,20 @@ public class Segment
     public int NumberOfStops { get; set; }
     [JsonProperty("carrierCode")]
     public string CarrierCode { get; set; } = null!;
+    [JsonProperty("aircraft")]
+    public AircraftEquipment Aircraft { get; set; } = null!;
     [JsonProperty("departure")]
     public FlightEndPoint Departure { get; set; } = null!;
     [JsonProperty("arrival")]
     public FlightEndPoint Arrival { get; set; } = null!;
     [JsonProperty("duration")]
     public string Duration { get; set; } = null!;
+}
+
+public class AircraftEquipment
+{
+    [JsonProperty("code")]
+    public string AircraftCode { get; set; } = null!;
 }
 
 public class FlightEndPoint
