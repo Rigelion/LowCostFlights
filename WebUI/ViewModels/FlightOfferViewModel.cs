@@ -11,11 +11,13 @@ namespace WebUI.ViewModels;
 public class FlightOfferViewModel
 {
     readonly IAmadeusService _amadeusService;
+    readonly ICurrencyConverterService _currencyConverterService;
     readonly IMapper _mapper;
-    public FlightOfferViewModel(IAmadeusService amadeusService, IMapper mapper)
+    public FlightOfferViewModel(IAmadeusService amadeusService, IMapper mapper, ICurrencyConverterService currencyConverter)
     {
         _amadeusService = amadeusService;
         _mapper = mapper;
+        _currencyConverterService = currencyConverter;
     }
 
     public IataModel Origin { get; set; } = null!;
@@ -32,7 +34,8 @@ public class FlightOfferViewModel
     public async Task GetFlightOfferResponses()
     {
         var resp = await _amadeusService.GetFlightOffers(new(Origin.Iata, Destination.Iata, DepartureDate, NumberOfPassengers, ReturnDate));
-        Response = _mapper.Map<FlightOfferResponseDto>(resp);       
+        var currencyRates = await _currencyConverterService.GetCurrencyRates();
+        Response = _mapper.Map<FlightOfferResponseDto>(resp, opts => opts.Items[typeof(CurrencyRates).ToString()] = currencyRates);
     }
 
     public static IEnumerable<CurrencyTypeViewModel> GetCurrencyTypeViewModels() => Enum.GetValues<CurrencyType>().ToList().Select<CurrencyType, CurrencyTypeViewModel>(x => new(x));

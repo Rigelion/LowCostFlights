@@ -9,12 +9,13 @@ namespace WebUI.Utility;
 
 public static class ExtensionMethods
 {
-    public static WebApplicationBuilder? AddServices(this WebApplicationBuilder builder, CurrencyRates currencyRates)
+    public static WebApplicationBuilder? AddServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton(currencyRates);
         builder.Services.AddSingleton<AmadeusConfiguration>((serviceProvider) => builder.Configuration.GetSection(nameof(AmadeusConfiguration)).Get<AmadeusConfiguration>());
+        builder.Services.AddSingleton<CurrencyConverterConfiguration>((serviceProvider) => builder.Configuration.GetSection(nameof(CurrencyConverterConfiguration)).Get<CurrencyConverterConfiguration>());
         builder.Services.AddSingleton<IIataService, IataService>();
 
+        builder.Services.AddScoped<ICurrencyConverterService, CurrencyConverterService>();
         builder.Services.AddScoped<FlightOfferViewModel>();
         builder.Services.AddScoped<IAmadeusService, AmadeusService>();
         builder.Services.AddScoped<ICacheService, CacheService>();
@@ -22,19 +23,6 @@ public static class ExtensionMethods
         builder.Services.AddTransient<IValidator<FlightOfferViewModel>, FlightRequestViewModelValidator>();
 
         return builder;
-    }
-
-    public static async Task<CurrencyRates> GetCurrencyRatesAsync(this WebApplicationBuilder builder)
-    {
-        var currencyService = new CurrencyConverterService(builder.Configuration.GetSection(nameof(CurrencyConverterConfiguration)).Get<CurrencyConverterConfiguration>());
-        CurrencyRates? currencyRates = await currencyService.GetCurrencyRates();
-
-        if (currencyRates == null)
-        {
-            currencyRates = builder.Configuration.GetSection(nameof(CurrencyRates)).Get<CurrencyRates>();
-        }
-
-        return currencyRates;
     }
 }
 

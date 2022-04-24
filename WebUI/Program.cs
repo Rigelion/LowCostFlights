@@ -19,10 +19,10 @@ builder.Host.UseSerilog((ctx, lc) => lc
         .ReadFrom.Configuration(ctx.Configuration));
 
 // Get currency rates
-var currencyRates = await builder.GetCurrencyRatesAsync();
+//var currencyRates = await builder.GetCurrencyRatesAsync();
 
 // Add services to the container.
-builder.AddServices(currencyRates);
+builder.AddServices();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();

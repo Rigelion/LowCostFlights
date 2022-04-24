@@ -13,19 +13,17 @@ public class ModelsToDtoProfile : Profile
         CreateMap<FlightOfferResponse, FlightOfferResponseDto>();
         CreateMap<Dictionaries, DictionariesDto>();
 
-
         CreateMap<FlightOfferData, FlightOfferDataDto>();
 
         CreateMap<Itinerary, ItineraryDto>()
             .ForMember(dst => dst.Duration, opt => opt.MapFrom<DurationResolver>());
-
 
         CreateMap<Segment, SegmentDto>()
             .ForMember(dst => dst.NumberOfStops, opt => opt.MapFrom(src => src.NumberOfStops))
             .ForMember(dst => dst.Duration, opt => opt.MapFrom<DurationResolver>())
             .ForMember(dst => dst.Arrival, opt => opt.MapFrom<IataModelResolver, FlightEndPoint>(x => x.Arrival))
             .ForMember(dst => dst.Departure, opt => opt.MapFrom<IataModelResolver, FlightEndPoint>(x => x.Departure))
-            .ForMember(dst=> dst.AircraftCode, opt=> opt.MapFrom(src=> src.Aircraft.AircraftCode));
+            .ForMember(dst => dst.AircraftCode, opt => opt.MapFrom(src => src.Aircraft.AircraftCode));
 
         CreateMap<FlightOfferPrice, FlightOfferPriceDto>()
             .ForMember(dst => dst.TotalHrk, opt => opt.MapFrom<EurToHrkResolver>())
@@ -53,28 +51,20 @@ public class IataModelResolver : IMemberValueResolver<Segment, SegmentDto, Fligh
 
 public class EurToHrkResolver : IValueResolver<FlightOfferPrice, FlightOfferPriceDto, decimal>
 {
-    private CurrencyRates _someService;
-
-    public EurToHrkResolver(CurrencyRates someService)
+    public decimal Resolve(FlightOfferPrice source, FlightOfferPriceDto destination, decimal destMember, ResolutionContext context)
     {
-        _someService = someService;
+        var rates = context.Items[typeof(CurrencyRates).ToString()] as CurrencyRates;
+        return rates!.EurToHrkRate * source.Total;
     }
-
-    public decimal Resolve(FlightOfferPrice source, FlightOfferPriceDto destination, decimal destMember, ResolutionContext context) =>
-        _someService.EurToHrkRate * source.Total;
 }
 
 public class EurToUsdResolver : IValueResolver<FlightOfferPrice, FlightOfferPriceDto, decimal>
 {
-    private CurrencyRates _someService;
-
-    public EurToUsdResolver(CurrencyRates someService)
+    public decimal Resolve(FlightOfferPrice source, FlightOfferPriceDto destination, decimal destMember, ResolutionContext context)
     {
-        _someService = someService;
+        var rates = context.Items[typeof(CurrencyRates).ToString()] as CurrencyRates;
+        return rates!.EurToUsdRate * source.Total;
     }
-
-    public decimal Resolve(FlightOfferPrice source, FlightOfferPriceDto destination, decimal destMember, ResolutionContext context) =>
-        _someService.EurToUsdRate * source.Total;
 }
 
 

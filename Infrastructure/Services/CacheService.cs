@@ -11,6 +11,7 @@ namespace Infrastructure.Services;
 public class CacheService : ICacheService
 {
     private readonly IMemoryCache _memoryCache;
+    private readonly TimeSpan _cacheExpiration = TimeSpan.FromMinutes(5);
 
     public CacheService(IMemoryCache memoryCache)
     {
@@ -26,7 +27,7 @@ public class CacheService : ICacheService
 
         result = await func();
 
-        _memoryCache.Set(cacheKey, result);
+        _memoryCache.Set(cacheKey, result, _cacheExpiration);
 
         return result;
 
